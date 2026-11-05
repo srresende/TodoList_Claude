@@ -1,0 +1,277 @@
+@import 'tailwindcss';
+
+/* Cores de marca tiradas do logo saladaMista (PRD RF-42, RF-51) */
+@theme {
+  --color-marca-escuro: #323a3d;
+  --color-marca-verde: #4aa05c;
+  --color-acento: #2f7d4f;
+  --color-aviso: #c55a11;
+  --color-fundo: #eceff1;
+  --color-linha: #d6dbdf;
+  --color-suave: #66707a;
+  --color-destaque: #f6f2e4;
+  --font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+@layer base {
+  html,
+  body {
+    @apply m-0 min-h-full bg-fundo font-sans text-[14px] leading-snug text-[#1d2329];
+  }
+  button {
+    @apply cursor-pointer;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-acento);
+    outline-offset: 1px;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-linha bg-white px-3 py-1.5 hover:bg-[#f3f5f6] disabled:cursor-default disabled:opacity-50;
+  }
+  .btn-primario {
+    @apply border-acento bg-acento text-white hover:bg-acento hover:brightness-110;
+  }
+  .btn-sm {
+    @apply px-2 py-0.5 text-[12.5px];
+  }
+  .icone-btn {
+    @apply inline-flex rounded p-1 text-[#5b646d] hover:bg-[#e6e9eb] hover:text-[#111] disabled:opacity-40;
+  }
+  .campo {
+    @apply block w-full rounded-md border border-linha bg-white px-2.5 py-2 focus:border-acento focus:outline-none focus:ring-3 focus:ring-acento/15;
+  }
+  .badge {
+    @apply inline-block min-w-[18px] rounded-full bg-[#e3e7ea] px-1.5 text-center text-[11.5px] leading-[18px];
+  }
+  .link {
+    @apply border-0 bg-transparent p-0 text-[13px] text-acento underline;
+  }
+  .etiqueta-plan {
+    @apply whitespace-nowrap rounded bg-[#e5f2ea] px-1.5 py-px text-[11px] text-[#246b40];
+  }
+  .etiqueta-atraso {
+    @apply whitespace-nowrap rounded bg-[#fdeee6] px-1.5 py-px text-[11px] text-[#8a3a10];
+  }
+}
+
+/* ---------- Folha do paper (tela e impressão compartilham o visual, RF-51) ---------- */
+.faixa-data {
+  background: var(--color-marca-escuro);
+  color: #fff;
+  font-weight: 700;
+  text-align: center;
+  padding: 0.4em;
+  font-size: 1.3em;
+  letter-spacing: 0.02em;
+  print-color-adjust: exact;
+}
+.faixa-data small {
+  font-weight: 400;
+  font-size: 0.68em;
+  opacity: 0.9;
+  margin-left: 0.5em;
+}
+.faixa-data.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0.25em 0.3em;
+}
+.faixa-data .nav-btn {
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font-size: 1.1em;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0.25em 0.6em;
+  border-radius: 5px;
+}
+.faixa-data .nav-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.16);
+}
+.faixa-data .nav-btn:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+.caixa-secao {
+  border: 3px solid #000;
+  margin-top: 0.9em;
+}
+.cabecalho-secao {
+  background: var(--color-marca-verde);
+  color: #fff;
+  font-weight: 700;
+  padding: 0.28em 0.6em;
+  border-bottom: 3px solid #000;
+  print-color-adjust: exact;
+}
+.tag-somente-leitura {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 11px;
+  background: #fff;
+  color: #8a3a10;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-weight: 600;
+  vertical-align: middle;
+}
+
+/* linhas na tela */
+.linha {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  min-height: 31px;
+}
+.linha[tabindex]:hover,
+.linha:focus,
+.linha:focus-within {
+  background: var(--color-destaque);
+}
+.linha:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 1.5px #d9b84a;
+}
+.linha.n2 {
+  padding-left: 32px;
+}
+.linha .marcador {
+  width: 12px;
+  text-align: center;
+  font-size: 11px;
+  flex: none;
+}
+.linha .texto {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.linha.feita .texto-principal {
+  text-decoration: line-through;
+  color: #8b9298;
+}
+.linha .acoes {
+  display: flex;
+  gap: 1px;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+.linha:hover .acoes,
+.linha:focus .acoes,
+.linha:focus-within .acoes {
+  opacity: 1;
+}
+.nova-linha {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 4px 0 27px;
+}
+.nova-linha.n2 {
+  padding-left: 55px;
+}
+.nova-linha input {
+  flex: 1;
+  border: 0;
+  border-bottom: 1px dashed #c5cbd0;
+  padding: 4px 2px;
+  background: transparent;
+}
+.nova-linha input:focus {
+  outline: none;
+  border-bottom-color: var(--color-acento);
+}
+
+/* ---------- Folha A4 (RF-50 a RF-56) ---------- */
+.folha {
+  font-family: Calibri, 'Segoe UI', Arial, sans-serif;
+  color: #000;
+  font-size: 12pt;
+  display: flex;
+  flex-direction: column;
+  min-height: 270mm;
+}
+.folha .faixa-data {
+  font-size: 1.35em;
+  padding: 0.3em;
+}
+.folha ul {
+  list-style: none;
+  margin: 0;
+  padding: 0.3em 0.6em 0;
+}
+.folha li {
+  display: flex;
+  gap: 0.45em;
+  line-height: 1.32;
+  padding: 0.05em 0;
+}
+.folha li.n2 {
+  padding-left: 1.7em;
+}
+.folha li .m {
+  flex: none;
+  width: 0.9em;
+  font-size: 0.8em;
+  line-height: 1.65;
+}
+.folha li.feita .t {
+  text-decoration: line-through;
+  color: #555;
+}
+.folha .anotacoes {
+  height: 3.4em;
+}
+.folha .rodape {
+  margin-top: auto;
+  padding-top: 5mm;
+  display: flex;
+  justify-content: center;
+}
+.folha .rodape img {
+  height: 8mm;
+  width: auto;
+}
+.a4 {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 10mm;
+  background: #fff;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+  transform-origin: top left;
+}
+
+#print-root {
+  display: none;
+}
+@page {
+  size: A4 portrait;
+  margin: 10mm;
+}
+@media print {
+  html,
+  body {
+    background: #fff;
+  }
+  #root {
+    display: none !important;
+  }
+  #print-root {
+    display: block !important;
+  }
+  .folha .caixa-secao {
+    break-inside: avoid;
+  }
+  * {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

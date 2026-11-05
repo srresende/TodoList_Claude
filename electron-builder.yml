@@ -1,0 +1,32 @@
+appId: br.com.saladamista.todolistc
+productName: TodoList_C
+directories:
+  buildResources: resources
+  output: dist
+files:
+  - out/**
+  - package.json
+extraResources:
+  - from: drizzle
+    to: drizzle
+# better-sqlite3 traz binários N-API prontos (valem para Node e Electron): não recompilar
+npmRebuild: false
+asarUnpack:
+  - '**/*.node'
+win:
+  target: nsis
+  icon: resources/icon.ico
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  shortcutName: TodoList_C
+  installerIcon: resources/icon.ico
+  uninstallerIcon: resources/icon.ico
+mac:
+  target: dmg
+  icon: resources/icon.png
+# RNF-07: atualização automática via GitHub Releases (configurar owner/repo quando o repositório existir)
+# publish:
+#   provider: github
+#   owner: <owner>
+#   repo: <repo>

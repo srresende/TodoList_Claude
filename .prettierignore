@@ -1,0 +1,6 @@
+out/
+dist/
+drizzle/
+prototype/
+node_modules/
+*.md
