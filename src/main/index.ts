@@ -3,8 +3,12 @@ import { app, BrowserWindow, ipcMain, Menu } from 'electron'
 import type { Comando } from '@domain/comandos'
 import { hojeLocal } from '@domain/datas'
 import type { InfoApp } from '@shared/api'
+import { EDICAO, EDICAO_LOCAL, NOME_APP } from '@shared/edicao'
 import { abrirBanco } from './db/repositorio'
 import { Servico } from './servico'
+
+// Edição Local (D11): pasta de dados própria, para nunca se misturar com a edição com nuvem.
+if (EDICAO_LOCAL) app.setPath('userData', join(app.getPath('appData'), 'TodoList_C Local'))
 
 // Desenvolvimento/testes: TODOLIST_DADOS aponta uma pasta de dados isolada (não toca nos dados reais).
 if (!app.isPackaged && process.env.TODOLIST_DADOS) app.setPath('userData', process.env.TODOLIST_DADOS)
@@ -23,7 +27,7 @@ function criarJanela(): void {
     height: 900,
     minWidth: 760,
     minHeight: 560,
-    title: 'TodoList_C',
+    title: NOME_APP,
     show: false,
     backgroundColor: '#eceff1',
     autoHideMenuBar: true,
@@ -57,7 +61,8 @@ app.whenReady().then(() => {
   const arquivoBanco = join(app.getPath('userData'), 'todolist_c.db')
   const migracoes = app.isPackaged ? join(process.resourcesPath, 'drizzle') : join(app.getAppPath(), 'drizzle')
   const { db, fechar } = abrirBanco(arquivoBanco, migracoes)
-  const servico = new Servico(db, hoje)
+  // A edição Local nunca sincroniza: não grava a fila de alterações (outbox).
+  const servico = new Servico(db, hoje, { registrarSincronizacao: !EDICAO_LOCAL })
   app.on('will-quit', fechar)
 
   ipcMain.handle('estado', () => servico.estado())
@@ -65,7 +70,9 @@ app.whenReady().then(() => {
   ipcMain.handle(
     'info',
     (): InfoApp => ({
-      nome: 'TodoList_C',
+      nome: NOME_APP,
+      edicao: EDICAO,
+      pastaDados: app.getPath('userData'),
       versao: app.getVersion(),
       electron: process.versions.electron,
       arquivoBanco,

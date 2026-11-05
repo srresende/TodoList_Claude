@@ -5,7 +5,7 @@
 | Produto | TodoList_C — lista diária de atividades pessoais e profissionais |
 | Marca | saladaMista |
 | Autor / Product Owner | Sergio Resende |
-| Versão do documento | 0.11 |
+| Versão do documento | 0.12 |
 | Data | 04/11/2026 |
 | Status | Etapa 2 em desenvolvimento — Marco 1 concluído (app desktop local, sem login e sem sincronização) |
 
@@ -292,6 +292,7 @@ Mitigações:
 | D6 | Mais de um PC por usuário | **Sim**, suportado pela sincronização |
 | D8 | Edição de papers passados | **Somente leitura** (consulta pela navegação « » na faixa de data, RF-16) |
 | D10 | Stack final (Etapa 2) | **Confirmada** (ver seção 8): Electron + electron-vite + React + TypeScript + Tailwind + Zustand; SQLite (`better-sqlite3`) + Drizzle; Supabase gratuito com OAuth PKCE e `safeStorage`; sincronização própria (outbox + pull incremental, LWW por campo); electron-builder/updater; Vitest, Playwright, ESLint + Prettier |
+| D11 | Edição Local | Segunda versão do app, **TodoList_C Local**: funciona só no PC, offline, **sem autenticação** (RF-01 a RF-05 não se aplicam) e **sem sincronização** (RF-71 a RF-74 não se aplicam; não grava fila de alterações). No primeiro acesso pede **nome** (obrigatório) e **e-mail** (opcional, validado), editáveis depois em "Meus dados" (clique no nome no topo); ambos aparecem no "Sobre". Mesmo código da edição com nuvem, escolhida no build (`--mode edicao-local`); instalador próprio (`TodoList_C-Local-Setup`) e pasta de dados própria (`%APPDATA%TodoList_C Local`), instalável ao lado da edição com nuvem |
 | D9 | Nome da aplicação | **TodoList_C** (nome exibido na interface, na janela "Sobre", no instalador e no executável) |
 
 ### 11.2 Questões em aberto
@@ -315,3 +316,4 @@ Nenhuma no momento. Novas questões surgirão na validação do protótipo (Etap
 | 0.9 | 05/11/2026 | Sergio Resende / Claude | Logo com fundo branco (`logo-salada-mista-branco.png`) no header (RF-60) e no rodapé do paper diário (RF-56), no lugar do logo escuro no topo da folha |
 | 0.10 | 05/11/2026 | Sergio Resende / Claude | D10: stack final confirmada; seção 8 sem itens em aberto (Drizzle, sincronização própria, OAuth PKCE, `safeStorage`, `printToPDF`, electron-vite, Zustand, Vitest/Playwright/ESLint) |
 | 0.11 | 05/11/2026 | Sergio Resende / Claude | Início da Etapa 2: Marco 1 (app Electron local com todo o fluxo do paper, base SQLite, testes de domínio e de ponta a ponta). Próximos marcos: login (Supabase Auth) e sincronização |
+| 0.12 | 05/11/2026 | Sergio Resende / Claude | D11: edição Local (offline, sem login e sem sincronização), com nome e e-mail do usuário |

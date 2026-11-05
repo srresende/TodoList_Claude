@@ -56,3 +56,17 @@ describe('Servico + SQLite', () => {
     expect(as.pend).toHaveLength(1)
   })
 })
+
+describe('edição Local', () => {
+  it('persiste nome e e-mail do usuário e não grava a fila de sincronização', () => {
+    const banco = abrirBanco(':memory:', MIGRACOES)
+    fechar = banco.fechar
+    const s = new Servico(banco.db, () => '2026-11-04', { registrarSincronizacao: false })
+    expect(s.estado().usuario).toBeNull()
+    expect(s.executar({ tipo: 'salvarUsuario', nome: 'Sergio Resende', email: 'sergio@exemplo.com' }).ok).toBe(true)
+    s.executar({ tipo: 'criarPaper', marcados: [], excluidos: [], novos: [{ secaoId: s.estado().secoes[0].id, texto: 'IBMR' }] })
+    const repo = new Repositorio(banco.db)
+    expect(repo.carregar('2026-11-04').usuario).toMatchObject({ nome: 'Sergio Resende', email: 'sergio@exemplo.com' })
+    expect(repo.pendentesSincronizacao()).toBe(0)
+  })
+})

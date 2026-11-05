@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react'
 import { foraDoPaper, planejadas } from '@domain/consultas'
 import { capitalizar, diaSemana, fmt } from '@domain/datas'
+import { EDICAO_LOCAL, NOME_APP } from '@shared/edicao'
 import { useLoja } from '../store'
 import { Icone, LogoBranco } from './icones'
 
@@ -15,12 +16,12 @@ export function Topo({ acoes }: { acoes: boolean }): ReactElement {
       <button
         type="button"
         className="-ml-1 rounded-md px-1 py-0.5 hover:bg-[#dfe4e7]"
-        title="Sobre o TodoList_C"
+        title={`Sobre o ${NOME_APP}`}
         onClick={() => set({ modal: 'sobre' })}
       >
         <LogoBranco altura={26} />
       </button>
-      <span className="border-l border-linha pl-2.5 text-[15px] font-bold">TodoList_C</span>
+      <span className="border-l border-linha pl-2.5 text-[15px] font-bold">{NOME_APP}</span>
       <span className="mr-auto pl-1.5 text-suave">
         {capitalizar(diaSemana(e.hoje))}, {fmt(e.hoje)}
       </span>
@@ -44,14 +45,35 @@ export function Topo({ acoes }: { acoes: boolean }): ReactElement {
           </button>
         </>
       )}
-      {/* RF-72: a sincronização com a nuvem ainda não existe; por enquanto os dados ficam só neste PC. */}
-      <span
-        className="inline-flex items-center gap-1.5 rounded-full border border-linha px-2.5 py-1 text-[12.5px]"
-        title={`${pendentes} alteração(ões) aguardando a sincronização com a nuvem`}
-      >
-        <span className="h-2 w-2 rounded-full bg-[#9aa1a7]" />
-        Salvo neste PC
-      </span>
+      {EDICAO_LOCAL ? (
+        // Edição Local (D11): nunca sincroniza; os dados ficam só neste PC
+        <span
+          className="inline-flex items-center gap-1.5 rounded-full border border-linha px-2.5 py-1 text-[12.5px]"
+          title="Versão local: funciona offline, sem login e sem sincronização"
+        >
+          <span className="h-2 w-2 rounded-full bg-acento" />
+          Versão local
+        </span>
+      ) : (
+        // RF-72: a sincronização com a nuvem ainda não existe; por enquanto os dados ficam só neste PC.
+        <span
+          className="inline-flex items-center gap-1.5 rounded-full border border-linha px-2.5 py-1 text-[12.5px]"
+          title={`${pendentes} alteração(ões) aguardando a sincronização com a nuvem`}
+        >
+          <span className="h-2 w-2 rounded-full bg-[#9aa1a7]" />
+          Salvo neste PC
+        </span>
+      )}
+      {EDICAO_LOCAL && e.usuario && (
+        <button
+          type="button"
+          className="max-w-[180px] truncate rounded-md px-1.5 py-1 text-[13px] text-suave hover:bg-[#eef0f2] hover:text-[#1d2329]"
+          title={`${e.usuario.nome}${e.usuario.email ? ` <${e.usuario.email}>` : ''} · clique para alterar seus dados`}
+          onClick={() => set({ modal: 'perfil' })}
+        >
+          {e.usuario.nome}
+        </button>
+      )}
       {acoes && (
         <button type="button" className="btn btn-sm" title="Atalhos de teclado" onClick={() => set({ modal: 'atalhos' })}>
           ?

@@ -55,9 +55,20 @@ export interface Paper {
   itens: PaperItem[]
 }
 
+/** Usuário do PC. Na edição Local é informado pela própria pessoa (nome e e-mail), sem autenticação. */
+export interface Usuario {
+  id: string
+  nome: string
+  email: string | null
+  provedor: 'local' | 'google' | 'email'
+  criadoEm: string
+  updatedAt: string
+}
+
 export interface Estado {
   /** Data local do computador (RN-02). */
   hoje: string
+  usuario: Usuario | null
   secoes: Secao[]
   atividades: Atividade[]
   papers: Paper[]

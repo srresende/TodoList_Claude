@@ -1,6 +1,7 @@
 // Contrato entre a interface (renderer) e o processo principal, exposto em window.api pelo preload.
 import type { Comando } from '@domain/comandos'
 import type { Estado } from '@domain/tipos'
+import type { Edicao } from './edicao'
 
 export interface Resposta {
   ok: boolean
@@ -13,6 +14,9 @@ export interface Resposta {
 
 export interface InfoApp {
   nome: string
+  edicao: Edicao
+  /** Pasta onde ficam os dados (útil para backup manual na edição Local). */
+  pastaDados: string
   versao: string
   electron: string
   arquivoBanco: string

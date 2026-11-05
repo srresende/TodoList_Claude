@@ -11,6 +11,7 @@ export default defineConfig({
       '@shared': resolve(__dirname, 'src/shared')
     }
   },
+  define: { __EDICAO__: JSON.stringify('nuvem') },
   test: {
     include: ['src/**/*.test.ts'],
     environment: 'node'

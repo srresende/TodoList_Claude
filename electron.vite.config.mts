@@ -11,15 +11,16 @@ const alias = {
   '@shared': resolve(__dirname, 'src/shared')
 }
 
-export default defineConfig({
-  main: {
-    resolve: { alias }
-  },
-  preload: {
-    resolve: { alias }
-  },
-  renderer: {
-    resolve: { alias: { ...alias, '@renderer': resolve(__dirname, 'src/renderer/src') } },
-    plugins: [react(), tailwindcss()]
+// Edição (PRD D11): `--mode edicao-local` gera a versão só local; qualquer outro modo gera a versão com nuvem.
+export default defineConfig(({ mode }) => {
+  const define = { __EDICAO__: JSON.stringify(mode === 'edicao-local' ? 'local' : 'nuvem') }
+  return {
+    main: { resolve: { alias }, define },
+    preload: { resolve: { alias }, define },
+    renderer: {
+      resolve: { alias: { ...alias, '@renderer': resolve(__dirname, 'src/renderer/src') } },
+      define,
+      plugins: [react(), tailwindcss()]
+    }
   }
 })

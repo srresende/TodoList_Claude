@@ -12,7 +12,7 @@ function exemplo(): Estado {
   const [dxc, pes] = secoesPadrao(ctx)
   dxc.nome = 'Atividades DXC'
   pes.nome = 'Atividades Pessoais'
-  const e: Estado = { hoje: '2026-11-03', secoes: [dxc, pes], atividades: [], papers: [] }
+  const e: Estado = { hoje: '2026-11-03', usuario: null, secoes: [dxc, pes], atividades: [], papers: [] }
   const nova = (sec: string, texto: string, o: { pai?: Atividade; concluida?: boolean; data?: string } = {}): Atividade => {
     const a: Atividade = {
       id: ctx.uid(),
@@ -134,7 +134,7 @@ describe('assistente do paper do dia', () => {
   })
 
   it('primeiro uso: sem paper anterior e sem pendências', () => {
-    const vazio: Estado = { hoje: '2026-11-04', secoes: secoesPadrao(ctx), atividades: [], papers: [] }
+    const vazio: Estado = { hoje: '2026-11-04', usuario: null, secoes: secoesPadrao(ctx), atividades: [], papers: [] }
     expect(montarAssistente(vazio)).toEqual({ ultimo: null, pend: [], plan: [] })
     executar(vazio, ctx, {
       tipo: 'criarPaper',
@@ -241,5 +241,24 @@ describe('atividades no paper de hoje', () => {
     expect(pes.arquivada).toBe(true)
     expect(porTexto(e, 'IBMR').secaoId).toBe(dxc.id)
     expect(() => executar(e, ctx, { tipo: 'arquivarSecao', id: dxc.id, destinoId: null })).toThrow(/ao menos uma/)
+  })
+})
+
+describe('usuário da edição Local (D11)', () => {
+  it('salva nome e e-mail, normalizando espaços e caixa do e-mail', () => {
+    const e = exemplo()
+    executar(e, ctx, { tipo: 'salvarUsuario', nome: '  Sergio   Resende ', email: ' Sergio@Exemplo.COM ' })
+    expect(e.usuario).toMatchObject({ nome: 'Sergio Resende', email: 'sergio@exemplo.com', provedor: 'local' })
+    const id = e.usuario!.id
+    executar(e, ctx, { tipo: 'salvarUsuario', nome: 'Sergio', email: '' })
+    expect(e.usuario).toMatchObject({ id, nome: 'Sergio', email: null })
+  })
+
+  it('exige o nome e valida o e-mail quando informado', () => {
+    const e = exemplo()
+    expect(() => executar(e, ctx, { tipo: 'salvarUsuario', nome: '   ', email: '' })).toThrow('Informe o seu nome.')
+    expect(() => executar(e, ctx, { tipo: 'salvarUsuario', nome: 'Ana', email: 'ana@' })).toThrow('E-mail inválido.')
+    expect(() => executar(e, ctx, { tipo: 'salvarUsuario', nome: 'x'.repeat(81), email: '' })).toThrow(/80/)
+    expect(e.usuario).toBeNull()
   })
 })

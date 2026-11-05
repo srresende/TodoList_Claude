@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
-Stage 2 is in progress. **Milestone 1 is done:** the desktop app works fully locally, with the whole paper flow from the prototype. It has no login and no cloud sync yet; both need a Supabase project. The Stage 1 prototype in `prototype/` is kept as the approved visual reference.
+Stage 2 is in progress. There are two editions, cloud and Local (see "Two editions" below). **Milestone 1 is done:** the desktop app works fully locally, with the whole paper flow from the prototype. It has no login and no cloud sync yet; both need a Supabase project. The Stage 1 prototype in `prototype/` is kept as the approved visual reference.
 
 ### Commands (repo root)
 
@@ -20,11 +20,25 @@ Stage 2 is in progress. **Milestone 1 is done:** the desktop app works fully loc
 | `npm run lint` / `npm run format` | ESLint / Prettier |
 | `npm run db:generate -- --name <nome>` | After changing `src/main/db/schema.ts`, generate a migration in `drizzle/` and commit it. Migrations run on app start |
 | `npm run dist:dir` / `npm run dist:win` | Unpacked app / NSIS installer in `dist/` |
+| `npm run dev:local` / `build:local` / `test:e2e:local` / `dist:local` | The same tasks for the **Local edition**; the installer goes to `dist-local/` |
 
 **Development-only environment variables** (ignored in the packaged app):
 - `TODOLIST_HOJE=AAAA-MM-DD` simulates the date.
 - `TODOLIST_DADOS=<folder>` uses an isolated data folder instead of `%APPDATA%/TodoList_C`.
-- The packaged exe accepts `--user-data-dir=<folder>`.
+- The packaged exe of the cloud edition accepts `--user-data-dir=<folder>`. The Local edition sets its own `userData` path, which overrides that switch.
+
+### Two editions (PRD D11)
+
+The same code builds two apps. The edition is fixed at build time: `--mode edicao-local` sets `__EDICAO__ = 'local'`, and any other mode gives `'nuvem'`. Don't name the mode `local`, because Vite reserves it for `.env.local`. Read the edition via `src/shared/edicao.ts` (`EDICAO`, `EDICAO_LOCAL`, `NOME_APP`); never check the mode string directly.
+
+- **`nuvem`** (`TodoList_C`) is the full product. Login and Supabase sync will be added in the next milestones, and they must live only in this edition.
+- **`local`** (`TodoList_C Local`) is offline only, with no auth and no sync.
+  - The outbox is not written (`Servico` gets `registrarSincronizacao: false`).
+  - On first launch, `tela.ts` routes to `PrimeiroAcesso` until `estado.usuario` exists.
+  - The user enters a name (required) and an email (optional, validated in the `salvarUsuario` command); both can be edited later in "Meus dados" (`ModalPerfil`).
+  - It has its own data folder (`%APPDATA%/TodoList_C Local`), set in `main/index.ts`.
+  - It has its own installer config, `electron-builder.local.yml`, which extends the base config.
+- After building one edition, `out/` holds that edition. Rebuild before running the other edition's e2e test, which the `test:e2e*` scripts do automatically.
 
 **Install notes:**
 - npm 11 blocks install scripts, so `npm install` does not download the Electron binary. Run `node node_modules/electron/install.js` once.

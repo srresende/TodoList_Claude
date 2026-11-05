@@ -6,6 +6,7 @@ import { Dialogos } from './components/Dialogos'
 import { ModalImpressao } from './components/Impressao'
 import { ModalAtalhos, ModalFora, ModalPlanejadas, ModalSecoes, ModalSobre } from './components/Modais'
 import { PaperView } from './components/PaperView'
+import { ModalPerfil, PrimeiroAcesso } from './components/Perfil'
 import { Toasts } from './components/Toasts'
 import { Topo } from './components/Topo'
 
@@ -26,7 +27,7 @@ export function App(): ReactElement {
     const teclas = (ev: KeyboardEvent): void => {
       const alvo = ev.target as HTMLElement
       const digitando = /INPUT|TEXTAREA|SELECT/.test(alvo.tagName)
-      const livre = !modal && !dialogo && r !== 'assistente'
+      const livre = !modal && !dialogo && r !== 'assistente' && r !== 'perfil'
       if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'p' && livre && data) {
         ev.preventDefault()
         set({ modal: 'imprimir' })
@@ -48,6 +49,13 @@ export function App(): ReactElement {
   }, [modal, dialogo, r, data, set])
 
   if (r === 'carregando') return <div className="p-10 text-center text-suave">Abrindo…</div>
+  if (r === 'perfil')
+    return (
+      <>
+        <PrimeiroAcesso />
+        <Toasts />
+      </>
+    )
 
   return (
     <>
@@ -58,6 +66,7 @@ export function App(): ReactElement {
       {modal === 'secoes' && <ModalSecoes />}
       {modal === 'sobre' && <ModalSobre />}
       {modal === 'atalhos' && <ModalAtalhos />}
+      {modal === 'perfil' && <ModalPerfil />}
       {modal === 'imprimir' && data && <ModalImpressao data={data} />}
       <Dialogos />
       <Toasts />

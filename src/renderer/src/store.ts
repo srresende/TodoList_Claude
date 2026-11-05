@@ -3,7 +3,7 @@ import type { Comando } from '@domain/comandos'
 import type { Estado } from '@domain/tipos'
 import type { InfoApp } from '@shared/api'
 
-export type Modal = 'planejadas' | 'fora' | 'secoes' | 'imprimir' | 'sobre' | 'atalhos'
+export type Modal = 'planejadas' | 'fora' | 'secoes' | 'imprimir' | 'sobre' | 'atalhos' | 'perfil'
 
 export type Dialogo =
   | { tipo: 'planejar'; id: string }

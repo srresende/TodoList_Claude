@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto'
 import { executar, retratoDeHoje, secoesPadrao, type Comando } from '@domain/comandos'
 import { ErroDominio, type Ctx, type Estado } from '@domain/tipos'
 import type { Resposta } from '@shared/api'
-import { Repositorio, type Banco } from './db/repositorio'
+import { Repositorio, type Banco, type OpcoesRepositorio } from './db/repositorio'
 
 export class Servico {
   private estadoAtual: Estado
@@ -14,9 +14,10 @@ export class Servico {
   constructor(
     db: Banco,
     private readonly hoje: () => string,
-    ctx?: Ctx
+    opcoes: { ctx?: Ctx } & Partial<OpcoesRepositorio> = {}
   ) {
-    this.repo = new Repositorio(db)
+    const { ctx, registrarSincronizacao = true } = opcoes
+    this.repo = new Repositorio(db, { registrarSincronizacao })
     this.ctx = ctx ?? { agora: () => new Date().toISOString(), uid: () => randomUUID() }
     this.estadoAtual = this.repo.carregar(this.hoje())
     if (!this.estadoAtual.secoes.length) {

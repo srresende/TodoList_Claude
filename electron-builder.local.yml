@@ -1,0 +1,11 @@
+# Edição Local (PRD D11): offline, sem login e sem sincronização. Instala ao lado da edição com nuvem.
+# Gere com `npm run dist:local` (que compila com `electron-vite build --mode edicao-local`).
+extends: ./electron-builder.yml
+appId: br.com.saladamista.todolistc.local
+productName: TodoList_C Local
+artifactName: TodoList_C-Local-Setup-${version}.${ext}
+directories:
+  buildResources: resources
+  output: dist-local
+nsis:
+  shortcutName: TodoList_C Local

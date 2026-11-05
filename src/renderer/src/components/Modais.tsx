@@ -2,6 +2,7 @@ import { useEffect, useRef, type FormEvent, type ReactElement, type ReactNode } 
 import { ativ, filhos, foraDoPaper, paperHoje, planejadas, secao, secoesArquivadas, secoesAtivas } from '@domain/consultas'
 import { addDias, capitalizar, diaSemana, difDias, fmt } from '@domain/datas'
 import type { Atividade } from '@domain/tipos'
+import { EDICAO_LOCAL, NOME_APP } from '@shared/edicao'
 import { useLoja } from '../store'
 import { SecaoTag } from './Assistente'
 import { Icone, LogoOriginal } from './icones'
@@ -284,12 +285,13 @@ export function ModalSecoes(): ReactElement {
 
 // RF-61
 export function ModalSobre(): ReactElement {
-  const { info } = useLoja()
+  const { info, estado } = useLoja()
+  const u = estado?.usuario
   return (
     <ModalBox titulo="Sobre" largura="estreita" aoFechar={fechar}>
       <div className="text-center">
         <LogoOriginal altura={54} />
-        <h2 className="mt-2 mb-0 text-xl font-bold">TodoList_C</h2>
+        <h2 className="mt-2 mb-0 text-xl font-bold">{NOME_APP}</h2>
         <div className="text-suave">Lista diária de atividades pessoais e profissionais</div>
         <dl className="mx-auto mt-4 grid max-w-[380px] grid-cols-[auto_1fr] gap-x-3.5 gap-y-1.5 text-left">
           <dt className="text-suave">Versão</dt>
@@ -302,10 +304,26 @@ export function ModalSobre(): ReactElement {
           <dd className="m-0 text-suave">[a definir]</dd>
           <dt className="text-suave">Contato</dt>
           <dd className="m-0 text-suave">[a definir]</dd>
-          <dt className="text-suave">Sincronização</dt>
-          <dd className="m-0">
-            Ainda não disponível · {info?.pendentesSincronizacao ?? 0} alteração(ões) guardadas neste PC
-          </dd>
+          {EDICAO_LOCAL ? (
+            <>
+              <dt className="text-suave">Edição</dt>
+              <dd className="m-0">Local: offline, sem login e sem sincronização</dd>
+              <dt className="text-suave">Usuário</dt>
+              <dd className="m-0">
+                {u?.nome ?? '—'}
+                {u?.email && <span className="block text-suave">{u.email}</span>}
+              </dd>
+              <dt className="text-suave">Dados</dt>
+              <dd className="m-0 text-[12px] break-all text-suave">{info?.pastaDados ?? '—'}</dd>
+            </>
+          ) : (
+            <>
+              <dt className="text-suave">Sincronização</dt>
+              <dd className="m-0">
+                Ainda não disponível · {info?.pendentesSincronizacao ?? 0} alteração(ões) guardadas neste PC
+              </dd>
+            </>
+          )}
         </dl>
         <p className="mt-[18px] text-xs text-suave">© 2026 saladaMista. Todos os direitos reservados.</p>
       </div>

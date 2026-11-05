@@ -2,6 +2,16 @@
 // Toda tabela sincronizável tem id UUID gerado no cliente e updated_at; exclusão lógica via deleted_at.
 import { integer, real, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core'
 
+/** Usuário do PC (uma linha). Na edição Local, nome e e-mail informados pela pessoa. */
+export const usuario = sqliteTable('usuario', {
+  id: text('id').primaryKey(),
+  nome: text('nome').notNull(),
+  email: text('email'),
+  provedor: text('provedor', { enum: ['local', 'google', 'email'] }).notNull(),
+  criadoEm: text('criado_em').notNull(),
+  updatedAt: text('updated_at').notNull()
+})
+
 export const secoes = sqliteTable('secoes', {
   id: text('id').primaryKey(),
   nome: text('nome').notNull(),

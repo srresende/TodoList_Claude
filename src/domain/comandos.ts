@@ -41,6 +41,9 @@ export type Comando =
   | { tipo: 'restaurarSecao'; id: string }
   | { tipo: 'criarPaper'; marcados: string[]; excluidos: string[]; novos: NovaNoAssistente[] }
   | { tipo: 'marcarImpresso'; data: string }
+  | { tipo: 'salvarUsuario'; nome: string; email: string }
+
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
 /** Mensagem curta para o usuário (toast), quando o comando tem algo a dizer. */
 export type Retorno = string | void
@@ -342,6 +345,23 @@ function aplicar(e: Estado, ctx: Ctx, c: Comando): Retorno {
         toque(p)
       }
       return
+    }
+
+    // Edição Local: nome obrigatório; e-mail opcional, mas validado quando informado
+    case 'salvarUsuario': {
+      const nome = c.nome.trim().replace(/\s+/g, ' ')
+      if (!nome) throw new ErroDominio('Informe o seu nome.')
+      if (nome.length > 80) throw new ErroDominio('O nome pode ter no máximo 80 caracteres.')
+      const email = c.email.trim().toLowerCase()
+      if (email && (!EMAIL.test(email) || email.length > 254)) throw new ErroDominio('E-mail inválido.')
+      if (e.usuario) {
+        e.usuario.nome = nome
+        e.usuario.email = email || null
+        toque(e.usuario)
+      } else {
+        e.usuario = { id: ctx.uid(), nome, email: email || null, provedor: 'local', criadoEm: agora, updatedAt: agora }
+      }
+      return 'Dados do usuário salvos'
     }
   }
 }

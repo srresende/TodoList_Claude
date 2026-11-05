@@ -2,7 +2,7 @@ import Database from 'better-sqlite3'
 import { count, eq } from 'drizzle-orm'
 import { drizzle, type BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator'
-import type { Atividade, Estado, Paper, Secao } from '@domain/tipos'
+import type { Atividade, Estado, Paper, Secao, Usuario } from '@domain/tipos'
 import * as schema from './schema'
 
 export type Banco = BetterSQLite3Database<typeof schema>
@@ -18,13 +18,19 @@ export function abrirBanco(arquivo: string, pastaMigracoes: string): { db: Banco
 }
 
 type Linha = Record<string, unknown> & { id: string }
-type Tabela = typeof schema.secoes | typeof schema.atividades | typeof schema.papers | typeof schema.paperItens
+type Tabela =
+  | typeof schema.usuario
+  | typeof schema.secoes
+  | typeof schema.atividades
+  | typeof schema.papers
+  | typeof schema.paperItens
 
 /** Linhas planas por tabela, no formato das colunas do esquema. */
-function linhas(e: Estado): Record<'secoes' | 'atividades' | 'papers' | 'paperItens', Map<string, Linha>> {
+function linhas(e: Estado): Record<'usuario' | 'secoes' | 'atividades' | 'papers' | 'paperItens', Map<string, Linha>> {
   const mapa = <T extends { id: string }>(xs: T[]): Map<string, Linha> =>
     new Map(xs.map((x) => [x.id, { ...x } as unknown as Linha]))
   return {
+    usuario: mapa(e.usuario ? [e.usuario] : []),
     secoes: mapa(e.secoes),
     atividades: mapa(e.atividades),
     papers: mapa(e.papers.map(({ itens: _itens, ...p }) => p)),
@@ -36,8 +42,16 @@ function linhas(e: Estado): Record<'secoes' | 'atividades' | 'papers' | 'paperIt
   }
 }
 
+export interface OpcoesRepositorio {
+  /** Grava a fila de sincronização (outbox). Desligado na edição Local, que nunca sincroniza. */
+  registrarSincronizacao: boolean
+}
+
 export class Repositorio {
-  constructor(private readonly db: Banco) {}
+  constructor(
+    private readonly db: Banco,
+    private readonly opcoes: OpcoesRepositorio = { registrarSincronizacao: true }
+  ) {}
 
   carregar(hoje: string): Estado {
     const itens = this.db.select().from(schema.paperItens).all()
@@ -53,6 +67,7 @@ export class Repositorio {
       }))
     return {
       hoje,
+      usuario: (this.db.select().from(schema.usuario).get() as Usuario | undefined) ?? null,
       secoes: this.db.select().from(schema.secoes).all() as Secao[],
       atividades: this.db.select().from(schema.atividades).all() as Atividade[],
       papers
@@ -67,12 +82,14 @@ export class Repositorio {
     const a = linhas(antes)
     const d = linhas(depois)
     const tabelas: [keyof typeof a, Tabela, string][] = [
+      ['usuario', schema.usuario, 'usuario'],
       ['secoes', schema.secoes, 'secoes'],
       ['atividades', schema.atividades, 'atividades'],
       ['papers', schema.papers, 'papers'],
       ['paperItens', schema.paperItens, 'paper_itens']
     ]
     let alteracoes = 0
+    const fila = this.opcoes.registrarSincronizacao
     this.db.transaction((tx) => {
       for (const [chave, tabela, nome] of tabelas) {
         for (const [id, nova] of d[chave]) {
@@ -83,17 +100,19 @@ export class Repositorio {
           if (!Object.keys(campos).length) continue
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           tx.insert(tabela).values(nova as any).onConflictDoUpdate({ target: tabela.id, set: nova as any }).run()
-          tx.insert(schema.outbox)
-            .values({ tabela: nome, registroId: id, operacao: 'upsert', campos: JSON.stringify(campos), criadoEm: agora })
-            .run()
+          if (fila)
+            tx.insert(schema.outbox)
+              .values({ tabela: nome, registroId: id, operacao: 'upsert', campos: JSON.stringify(campos), criadoEm: agora })
+              .run()
           alteracoes++
         }
         for (const id of a[chave].keys()) {
           if (d[chave].has(id)) continue
           tx.delete(tabela).where(eq(tabela.id, id)).run()
-          tx.insert(schema.outbox)
-            .values({ tabela: nome, registroId: id, operacao: 'delete', campos: '{}', criadoEm: agora })
-            .run()
+          if (fila)
+            tx.insert(schema.outbox)
+              .values({ tabela: nome, registroId: id, operacao: 'delete', campos: '{}', criadoEm: agora })
+              .run()
           alteracoes++
         }
       }

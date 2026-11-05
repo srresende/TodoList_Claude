@@ -8,7 +8,9 @@
   "main": "out/main/index.js",
   "scripts": {
     "dev": "electron-vite dev",
+    "dev:local": "electron-vite dev --mode edicao-local",
     "build": "electron-vite build",
+    "build:local": "electron-vite build --mode edicao-local",
     "start": "electron-vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
     "test": "vitest run",
@@ -17,8 +19,10 @@
     "format": "prettier --write .",
     "db:generate": "drizzle-kit generate",
     "dist:win": "electron-vite build && electron-builder --win",
-    "test:e2e": "electron-vite build && playwright test",
-    "dist:dir": "electron-vite build && electron-builder --win --dir"
+    "test:e2e": "electron-vite build && playwright test e2e/paper.spec.ts",
+    "dist:dir": "electron-vite build && electron-builder --win --dir",
+    "test:e2e:local": "electron-vite build --mode edicao-local && playwright test e2e/local.spec.ts",
+    "dist:local": "electron-vite build --mode edicao-local && electron-builder --win --config electron-builder.local.yml"
   },
   "dependencies": {
     "better-sqlite3": "^13.0.3",

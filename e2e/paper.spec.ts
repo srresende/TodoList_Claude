@@ -75,6 +75,11 @@ test('fluxo do paper: primeiro uso, criar atividades, virar o dia e navegar', as
     await expect(janela.locator('[data-linha]', { hasText: 'Agenda' })).toBeVisible()
     await app.close()
   } finally {
-    rmSync(dados, { recursive: true, force: true })
+    // Melhor esforço: no Windows, antivírus/indexador podem segurar a pasta temporária por alguns instantes.
+    try {
+      rmSync(dados, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 })
+    } catch {
+      /* fica no %TEMP%; não afeta o resultado do teste */
+    }
   }
 })
