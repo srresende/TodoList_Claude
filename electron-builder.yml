@@ -1,5 +1,6 @@
 appId: br.com.saladamista.todolistc
 productName: TodoList_C
+artifactName: TodoList_C-Setup-${version}.${ext}
 directories:
   buildResources: resources
   output: dist
